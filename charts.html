@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f0f4f8;
+            margin: 0;
+            padding: 30px;
+            color: #0a192f;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 36px;
+            color: #006400;
+            margin-bottom: 40px;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .chart-card {
+            background: #fff;
+            padding: 25px 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .chart-card h2 {
+            margin-bottom: 20px;
+            color: #2e7d32;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>📊 School Analytics Dashboard</h1>
+
+    <div class="charts-container">
+        <!-- Fee Status Chart -->
+        <div class="chart-card">
+            <h2>Fee Payment Status</h2>
+            <canvas id="feeChart"></canvas>
+        </div>
+
+        <!-- Students per Course Chart -->
+        <div class="chart-card">
+            <h2>Students per Course</h2>
+            <canvas id="courseChart"></canvas>
+        </div>
+
+        <!-- Attendance Chart -->
+        <div class="chart-card">
+            <h2>Attendance Summary</h2>
+            <canvas id="attendanceChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Load data from localStorage
+        let students = JSON.parse(localStorage.getItem('students') || '[]');
+        let feeStatus = JSON.parse(localStorage.getItem('feeStatus') || '{}');
+        let attendanceData = JSON.parse(localStorage.getItem('attendance') || '{}');
+
+        // -------------------- Fee Status Chart --------------------
+        const paidCount = students.filter(s => feeStatus[s.regNo]?.status === 'Paid').length;
+        const unpaidCount = students.length - paidCount;
+
+        const feeChartCtx = document.getElementById('feeChart').getContext('2d');
+        const feeChart = new Chart(feeChartCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Paid', 'Unpaid'],
+                datasets: [{
+                    label: 'Fee Status',
+                    data: [paidCount, unpaidCount],
+                    backgroundColor: ['#2e7d32', '#d32f2f'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // -------------------- Students per Course Chart --------------------
+        const courseCounts = {};
+        students.forEach(s => {
+            courseCounts[s.course] = (courseCounts[s.course] || 0) + 1;
+        });
+
+        const courseChartCtx = document.getElementById('courseChart').getContext('2d');
+        const courseChart = new Chart(courseChartCtx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(courseCounts),
+                datasets: [{
+                    label: 'Number of Students',
+                    data: Object.values(courseCounts),
+                    backgroundColor: '#2e7d32'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // -------------------- Attendance Summary Chart --------------------
+        const attendanceSummary = {};
+        Object.keys(attendanceData).forEach(course => {
+            let present = 0, total = 0;
+            Object.values(attendanceData[course]).forEach(status => {
+                total++;
+                if (status === 'Present') present++;
+            });
+            attendanceSummary[course] = total ? (present / total * 100).toFixed(0) : 0;
+        });
+
+        const attendanceChartCtx = document.getElementById('attendanceChart').getContext('2d');
+        const attendanceChart = new Chart(attendanceChartCtx, {
+            type: 'line',
+            data: {
+                labels: Object.keys(attendanceSummary),
+                datasets: [{
+                    label: 'Attendance %',
+                    data: Object.values(attendanceSummary),
+                    borderColor: '#2e7d32',
+                    backgroundColor: 'rgba(46, 125, 50, 0.2)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true, max: 100 }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

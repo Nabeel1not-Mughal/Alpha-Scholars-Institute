@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 Attendance</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #e8f5e9;
+            margin: 0;
+            padding: 30px;
+            color: #0a192f;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2e7d32;
+            font-size: 36px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            min-width: 120px;
+            font-size: 16px;
+            color: #0a2540;
+        }
+
+        select {
+            flex: 1;
+            padding: 12px 15px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 2px solid #ccc;
+            transition: border 0.3s, box-shadow 0.3s;
+        }
+
+        select:focus {
+            border-color: #2e7d32;
+            box-shadow: 0 0 8px rgba(46, 125, 50, 0.3);
+            outline: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #2e7d32;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background: #f4f9f4;
+        }
+
+        tr:hover {
+            background: #e1f5e1;
+        }
+
+        td select {
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        .submit {
+            padding: 12px 30px;
+            margin-top: 25px;
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 125, 50, 0.4);
+        }
+
+        .toaster {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 250px;
+            background: #2e7d32;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .toaster.error {
+            background: crimson;
+        }
+
+        @media (max-width: 768px) {
+            .form-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .form-group label {
+                min-width: auto;
+                margin-bottom: 6px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📋 Attendance</h1>
+
+        <div class="form-group">
+            <label for="classSelect">Select Class:</label>
+            <select id="classSelect">
+                <option value="" disabled selected>Select Class</option>
+            </select>
+        </div>
+
+        <form id="attendanceForm">
+            <table id="studentTable">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Father's Name</th>
+                        <th>Attendance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Students will appear here -->
+                </tbody>
+            </table>
+            <button type="submit" class="submit">Save Attendance</button>
+        </form>
+    </div>
+
+    <div id="toaster" class="toaster"></div>
+
+    <script>
+        let students = JSON.parse(localStorage.getItem('students') || '[]');
+        const classSelect = document.getElementById('classSelect');
+        const studentTableBody = document.querySelector('#studentTable tbody');
+
+        // Populate class dropdown
+        const classes = [...new Set(students.map(s => s.course))];
+        classes.forEach(cls => {
+            const option = document.createElement('option');
+            option.value = cls;
+            option.text = cls;
+            classSelect.appendChild(option);
+        });
+
+        classSelect.addEventListener('change', function () {
+            const selectedClass = this.value;
+            studentTableBody.innerHTML = '';
+            const classStudents = students.filter(s => s.course === selectedClass);
+
+            classStudents.forEach(s => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${s.name}</td>
+                    <td>${s.fatherName}</td>
+                    <td>
+                        <select data-regno="${s.regNo}">
+                            <option value="Present">Present</option>
+                            <option value="Absent">Absent</option>
+                        </select>
+                    </td>
+                `;
+                studentTableBody.appendChild(tr);
+            });
+
+            const attendanceData = JSON.parse(localStorage.getItem('attendance') || '{}');
+            if (attendanceData[selectedClass]) {
+                classStudents.forEach(s => {
+                    const sel = studentTableBody.querySelector(`select[data-regno="${s.regNo}"]`);
+                    if (sel) sel.value = attendanceData[selectedClass][s.regNo] || "Present";
+                });
+            }
+        });
+
+        document.getElementById('attendanceForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const selectedClass = classSelect.value;
+            if (!selectedClass) return;
+
+            const attendanceData = JSON.parse(localStorage.getItem('attendance') || '{}');
+            attendanceData[selectedClass] = {};
+
+            studentTableBody.querySelectorAll('select').forEach(sel => {
+                const regNo = sel.getAttribute('data-regno');
+                attendanceData[selectedClass][regNo] = sel.value;
+            });
+
+            localStorage.setItem('attendance', JSON.stringify(attendanceData));
+
+            const toaster = document.getElementById('toaster');
+            toaster.innerText = "✅ Attendance saved!";
+            toaster.style.display = 'block';
+            setTimeout(() => { toaster.style.display = 'none'; }, 3000);
+        });
+    </script>
+</body>
+
+</html>

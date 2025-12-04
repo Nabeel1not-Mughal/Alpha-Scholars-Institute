@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 Admission Form</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f5f8fa;
+            margin: 0;
+            padding: 40px;
+            color: #0a192f;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #006400;
+            font-size: 42px;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        .reg-card {
+            background: linear-gradient(135deg, #006400, #0a192f);
+            color: #fff;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 0;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            background: transparent;
+            font-size: 16px;
+        }
+
+        .form-group label {
+            position: absolute;
+            top: 50%;
+            left: 12px;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: gray;
+            pointer-events: none;
+            transition: 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group input:not(:placeholder-shown),
+        .form-group select:valid {
+            border-color: #006400;
+        }
+
+        .form-group input:focus+label,
+        .form-group input:not(:placeholder-shown)+label,
+        .form-group select:focus+label,
+        .form-group select:valid+label {
+            top: -8px;
+            left: 10px;
+            background: #ffffff;
+            padding: 0px 5px;
+            font-size: 13px;
+            border-radius: 10px;
+            color: #006400;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .submit {
+            grid-column: 1 / -1;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #006400, #0a192f);
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+
+        .submit:hover {
+            box-shadow: 0 0 15px #006400;
+            transform: translateY(-2px);
+        }
+
+        .toaster {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 250px;
+            background: #006400;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .toaster.error {
+            background: crimson;
+        }
+
+        @media (max-width: 600px) {
+            form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>🎓 Admission Form</h1>
+        <div class="reg-card">
+            Registration No: <span id="regno"></span>
+        </div>
+
+        <form id="studentForm"
+            style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap:20px 30px;">
+
+            <input type="hidden" id="hiddenReg">
+
+            <div class="form-group">
+                <input type="text" id="studentName" placeholder=" " required>
+                <label>Student Name</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="fatherName" placeholder=" " required>
+                <label>Father's Name</label>
+            </div>
+
+            <div class="form-group">
+                <input type="date" id="dob" placeholder=" " required>
+                <label>DOB</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="phone" placeholder=" " maxlength="12" required>
+                <label>Phone Number</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="bform" placeholder=" " maxlength="15" required>
+                <label>B-Form</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="religion" placeholder=" " required>
+                <label>Religion</label>
+            </div>
+
+            <div class="form-group full-width">
+                <input type="text" id="address" placeholder=" " required>
+                <label>Address</label>
+            </div>
+
+            <div class="form-group">
+                <select id="course" required>
+                    <option disabled selected value=""></option>
+                    <option value="Class 1">Class 1</option>
+                    <option value="Class 2">Class 2</option>
+                    <option value="Class 3">Class 3</option>
+                    <option value="Class 4">Class 4</option>
+                    <option value="Class 5">Class 5</option>
+                    <option value="Class 6">Class 6</option>
+                    <option value="Class 7">Class 7</option>
+                    <option value="Class 8">Class 8</option>
+                    <option value="Matric">Matric</option>
+                    <option value="Intermediate">Intermediate</option>
+                </select>
+                <label>Course</label>
+            </div>
+
+            <div class="form-group">
+                <select id="gender" required>
+                    <option disabled selected value=""></option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+                <label>Gender</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="admission_fee" readonly placeholder=" ">
+                <label>Admission Fee</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="monthly_fee" readonly placeholder=" ">
+                <label>Monthly Fee</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="total_fee" readonly placeholder=" ">
+                <label>Total Fee</label>
+            </div>
+
+            <button type="submit" class="submit">Submit Student</button>
+        </form>
+    </div>
+
+    <div id="toaster" class="toaster"></div>
+
+    <script>
+        let students = JSON.parse(localStorage.getItem('students') || '[]');
+
+        // Generate Registration No
+        let lastReg = localStorage.getItem('lastReg') || '0';
+        let newRegNum = String(parseInt(lastReg) + 1).padStart(6, '0');
+        let regNo = 'ASI-' + newRegNum;
+
+        document.getElementById('regno').innerText = regNo;
+        document.getElementById('hiddenReg').value = regNo;
+
+        // Course fee mapping
+        const feeData = {
+            "Class 1": { monthly: 2000, admission: 1000 },
+            "Class 2": { monthly: 2500, admission: 1200 },
+            "Class 3": { monthly: 3000, admission: 1500 },
+            "Class 4": { monthly: 3500, admission: 1500 },
+            "Class 5": { monthly: 4000, admission: 1500 },
+            "Class 6": { monthly: 4500, admission: 1500 },
+            "Class 7": { monthly: 5000, admission: 1500 },
+            "Class 8": { monthly: 5500, admission: 1500 },
+            "Matric": { monthly: 6000, admission: 1500 },
+            "Intermediate": { monthly: 7000, admission: 1500 }
+        };
+
+        document.getElementById('course').addEventListener('change', function () {
+            let val = this.value;
+            if (feeData[val]) {
+                document.getElementById('admission_fee').value = feeData[val].admission;
+                document.getElementById('monthly_fee').value = feeData[val].monthly;
+                document.getElementById('total_fee').value = feeData[val].admission + feeData[val].monthly;
+            }
+        });
+
+        // Phone & B-Form formatting
+        document.getElementById('phone').addEventListener('input', function () {
+            let val = this.value.replace(/\D/g, '').slice(0, 11);
+            if (val.length > 4) val = val.slice(0, 4) + '-' + val.slice(4);
+            this.value = val;
+        });
+
+        document.getElementById('bform').addEventListener('input', function () {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length > 13) value = value.slice(0, 13);
+            if (value.length > 5) {
+                value = value.slice(0, 5) + '-' + value.slice(5);
+            }
+            this.value = value;
+        });
+
+        // Submit form
+        document.getElementById('studentForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const student = {
+                regNo,
+                name: document.getElementById('studentName').value,
+                fatherName: document.getElementById('fatherName').value,
+                dob: document.getElementById('dob').value,
+                phone: document.getElementById('phone').value,
+                bform: document.getElementById('bform').value,
+                religion: document.getElementById('religion').value,
+                address: document.getElementById('address').value,
+                course: document.getElementById('course').value,
+                gender: document.getElementById('gender').value,
+                admission_fee: document.getElementById('admission_fee').value,
+                monthly_fee: document.getElementById('monthly_fee').value,
+                total_fee: document.getElementById('total_fee').value
+            };
+
+            students.push(student);
+            localStorage.setItem('students', JSON.stringify(students));
+
+            // Save last registration number
+            localStorage.setItem('lastReg', String(parseInt(lastReg) + 1));
+
+            document.getElementById('toaster').innerText = "✅ Student saved to localStorage!";
+            document.getElementById('toaster').style.display = 'block';
+            setTimeout(() => { document.getElementById('toaster').style.display = 'none'; }, 3000);
+
+            this.reset();
+
+            // Generate next reg no
+            lastReg = String(parseInt(lastReg) + 1);
+            newRegNum = String(parseInt(lastReg)).padStart(6, '0');
+            regNo = 'ASI-' + newRegNum;
+            document.getElementById('regno').innerText = regNo;
+            document.getElementById('hiddenReg').value = regNo;
+        });
+    </script>
+
+</body>
+
+</html>

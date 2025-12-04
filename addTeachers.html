@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👩‍🏫 Teacher Admission Form</title>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f5f8fa;
+            margin: 0;
+            padding: 40px;
+            color: #0a192f;
+        }
+
+        .container {
+            max-width: 980px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #006400;
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            color: #006400;
+        }
+
+        .reg-card {
+            background: linear-gradient(135deg, #006400, #0a192f);
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            background: transparent;
+            font-size: 15px;
+        }
+
+        .form-group label {
+            position: absolute;
+            top: 50%;
+            left: 12px;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: gray;
+            pointer-events: none;
+            transition: 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group input:not(:placeholder-shown),
+        .form-group select:valid {
+            border-color: #006400;
+        }
+
+        .form-group input:focus+label,
+        .form-group input:not(:placeholder-shown)+label,
+        .form-group select:focus+label,
+        .form-group select:valid+label {
+            top: -8px;
+            left: 10px;
+            background: #fff;
+            padding: 0 4px;
+            font-size: 13px;
+            color: #006400;
+        }
+
+        .submit {
+            grid-column: 1 / -1;
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #006400, #0a192f);
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .submit:hover {
+            box-shadow: 0 5px 18px #006400;
+            transform: translateY(-2px);
+        }
+
+        .toaster {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 250px;
+            background: #006400;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>👩‍🏫 Teacher Admission Form</h1>
+
+        <div class="reg-card">
+            Registration No: <span id="regno"></span>
+        </div>
+
+        <form id="teacherForm">
+
+            <!-- PERSONAL INFORMATION -->
+            <div class="section-title">Personal Information</div>
+
+            <div class="form-group">
+                <input type="text" id="teacherName" placeholder=" " required>
+                <label>Full Name</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="fatherName" placeholder=" " required>
+                <label>Father Name</label>
+            </div>
+
+            <div class="form-group">
+                <select id="teacherGender" required>
+                    <option disabled selected value=""></option>
+                    <option>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                </select>
+                <label>Gender</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="religion" placeholder=" " required>
+                <label>Religion</label>
+            </div>
+
+            <div class="form-group">
+                <select id="maritalStatus" required>
+                    <option disabled selected value=""></option>
+                    <option>Single</option>
+                    <option>Married</option>
+                    <option>Divorced</option>
+                </select>
+                <label>Marital Status</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="cnic" placeholder=" " required maxlength="15">
+                <label>CNIC Number</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="nationality" placeholder=" " required>
+                <label>Nationality</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="bloodGroup" placeholder=" " required>
+                <label>Blood Group</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="teacherPhone" placeholder=" " required>
+                <label>Phone Number</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="emergencyName" placeholder=" " required>
+                <label>Emergency Contact Name</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="emergencyPhone" placeholder=" " required>
+                <label>Emergency Phone</label>
+            </div>
+
+            <div class="form-group" style="grid-column:1/-1;">
+                <input type="text" id="teacherAddress" placeholder=" " required>
+                <label>Address</label>
+            </div>
+
+            <!-- PROFESSIONAL INFO -->
+            <div class="section-title">Professional Information</div>
+
+            <div class="form-group">
+                <select id="teacherType" required>
+                    <option disabled selected value=""></option>
+                    <option>Full-Time</option>
+                    <option>Part-Time</option>
+                </select>
+                <label>Teacher Type</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="teacherSubject" placeholder=" " required>
+                <label>Subject</label>
+            </div>
+
+            <div class="form-group">
+                <input type="number" id="teacherExperience" placeholder=" " required>
+                <label>Experience (Years)</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="previousInstitute" placeholder=" ">
+                <label>Previous Institute</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="lastPosition" placeholder=" ">
+                <label>Last Position</label>
+            </div>
+
+            <div class="form-group">
+                <input type="date" id="joiningDate" required>
+                <label>Joining Date</label>
+            </div>
+
+            <div class="form-group">
+                <input type="number" id="salary" placeholder=" " required>
+                <label>Expected Salary</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="skills" placeholder=" ">
+                <label>Skills (comma separated)</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="languages" placeholder=" ">
+                <label>Languages Known</label>
+            </div>
+
+            <!-- DOCUMENT DETAILS -->
+            <div class="section-title">Document Details</div>
+
+            <div class="form-group">
+                <input type="date" id="cnicIssue" required>
+                <label>CNIC Issue Date</label>
+            </div>
+
+            <div class="form-group">
+                <input type="date" id="cnicExpiry" required>
+                <label>CNIC Expiry Date</label>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="degreeInstitute" placeholder=" " required>
+                <label>Highest Degree Institute</label>
+            </div>
+
+            <div class="form-group">
+                <input type="number" id="degreeYear" placeholder=" " required>
+                <label>Degree Completion Year</label>
+            </div>
+
+            <button type="submit" class="submit">Submit Teacher</button>
+
+        </form>
+    </div>
+
+    <div id="toaster" class="toaster"></div>
+
+    <script>
+        let teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
+
+        function generateRegNo() {
+            return "T-" + Math.floor(1000 + Math.random() * 9000);
+        }
+
+        let regNo = generateRegNo();
+        document.getElementById("regno").innerText = regNo;
+
+        document.getElementById("teacherForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const teacher = {
+                regNo,
+                name: teacherName.value,
+                fatherName: fatherName.value,
+                gender: teacherGender.value,
+                religion: religion.value,
+                maritalStatus: maritalStatus.value,
+                cnic: cnic.value,
+                nationality: nationality.value,
+                bloodGroup: bloodGroup.value,
+                phone: teacherPhone.value,
+                emergencyName: emergencyName.value,
+                emergencyPhone: emergencyPhone.value,
+                address: teacherAddress.value,
+
+                teacherType: teacherType.value,
+                subject: teacherSubject.value,
+                experience: teacherExperience.value,
+                previousInstitute: previousInstitute.value,
+                lastPosition: lastPosition.value,
+                joiningDate: joiningDate.value,
+                salary: salary.value,
+                skills: skills.value,
+                languages: languages.value,
+
+                cnicIssue: cnicIssue.value,
+                cnicExpiry: cnicExpiry.value,
+                degreeInstitute: degreeInstitute.value,
+                degreeYear: degreeYear.value
+            };
+
+            teachers.push(teacher);
+            localStorage.setItem("teachers", JSON.stringify(teachers));
+
+            const toaster = document.getElementById("toaster");
+            toaster.innerText = "✅ Teacher Saved Successfully!";
+            toaster.style.display = "block";
+
+            setTimeout(() => toaster.style.display = "none", 3000);
+
+            this.reset();
+            regNo = generateRegNo();
+            document.getElementById("regno").innerText = regNo;
+        });
+    </script>
+
+</body>
+
+</html>

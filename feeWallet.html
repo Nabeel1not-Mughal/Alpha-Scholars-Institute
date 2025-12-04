@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💰 Wallet System</title>
+<style>
+    body { font-family: "Poppins", sans-serif; background: #e9f5ee; margin:0; padding:30px; display:flex; justify-content:center;}
+    .container { width: 500px; background:#fff; padding:25px 35px; border-radius:15px; box-shadow:0 10px 40px rgba(0,0,0,0.15);}
+    h1 { text-align:center; color:#2e7d32;}
+    .wallet-card { background:#e3f7e9; padding:18px; border-radius:15px; text-align:center; margin-bottom:20px;}
+    .wallet-card span { font-size:30px; font-weight:bold;}
+    input { width:90%; padding:11px; border-radius:10px; border:2px solid #ccc; margin:10px 0; }
+    input:focus { border-color:#2e7d32; }
+    .btn { width:48%; padding:12px; border:none; border-radius:10px; color:white; cursor:pointer; font-weight:bold;}
+    .btn-pay { background:#2e7d32; }
+    .btn-add { background:#ff9800; }
+    .switcher { display:flex; justify-content:space-between; margin-bottom:15px;}
+    .switcher button { width:48%; padding:10px; border:none; background:#d9d9d9; border-radius:10px; font-weight:bold; cursor:pointer;}
+    .switcher .active { background:#2e7d32; color:white; }
+    .toaster { position:fixed; top:20px; right:20px; display:none; padding:12px 18px; background:#2e7d32; color:white; border-radius:8px; font-weight:bold;}
+    .toaster.error { background:crimson; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>💰 Wallet System</h1>
+
+<div class="wallet-card">
+    <h3>Current School Wallet</h3>
+    <span id="walletBalance">0 PKR</span>
+</div>
+
+<!-- SWITCH BUTTONS -->
+<div class="switcher">
+    <button id="studentModeBtn" class="active">Student Payment</button>
+    <button id="teacherModeBtn">Teacher Salary</button>
+</div>
+
+<!-- STUDENT SECTION -->
+<div id="studentSection">
+    <input type="text" id="studentID" placeholder="Enter Student ID">
+    <div id="studentInfo" style="display:none;">
+        <input type="text" id="studentName" readonly>
+        <input type="text" id="fatherName" readonly>
+        <input type="text" id="course" readonly>
+        <input type="text" id="totalFee" readonly>
+    </div>
+    <div style="display:flex; justify-content:space-between; margin-top:10px;">
+        <button class="btn btn-pay" id="payFeeBtn" style="display:none;">Pay Fee</button>
+        <button class="btn btn-add" id="addMoneyBtn">Add Money</button>
+    </div>
+</div>
+
+<!-- TEACHER SECTION -->
+<div id="teacherSection" style="display:none;">
+    <input type="text" id="teacherID" placeholder="Enter Teacher ID">
+    <div id="teacherInfo" style="display:none;">
+        <input type="text" id="teacherName" readonly>
+        <input type="text" id="teacherSubject" readonly>
+        <input type="text" id="teacherSalary" readonly>
+    </div>
+    <button class="btn btn-pay" id="payTeacherBtn" style="width:100%; display:none; margin-top:10px;">Pay Salary</button>
+</div>
+
+</div>
+
+<div id="toaster" class="toaster"></div>
+
+<script>
+const toaster = document.getElementById("toaster");
+function notify(msg, error=false){
+    toaster.innerText = msg;
+    toaster.style.display = "block";
+    toaster.className = error ? "toaster error" : "toaster";
+    setTimeout(()=>toaster.style.display="none", 3000);
+}
+
+// ===== INITIALIZE WALLET =====
+let walletBalance = parseFloat(localStorage.getItem("walletBalance"));
+if(isNaN(walletBalance)) walletBalance = 0;
+localStorage.setItem("walletBalance", walletBalance);
+document.getElementById("walletBalance").innerText = walletBalance + " PKR";
+
+// Load students, teachers and fee status
+let students = JSON.parse(localStorage.getItem("students") || "[]");
+let feeStatus = JSON.parse(localStorage.getItem("feeStatus") || "{}");
+let teachers = JSON.parse(localStorage.getItem("teachers") || "[]");
+let teacherFeeStatus = JSON.parse(localStorage.getItem("teacherFee") || "{}");
+
+// Monthly income tracker
+let monthlyIncome = parseFloat(localStorage.getItem("monthlyIncome") || "0");
+if(isNaN(monthlyIncome)) monthlyIncome = 0;
+
+// -------- STUDENT LOGIC --------
+const studentID = document.getElementById("studentID");
+const studentInfo = document.getElementById("studentInfo");
+const payFeeBtn = document.getElementById("payFeeBtn");
+let currentStudent = null;
+
+studentID.addEventListener("input", ()=>{
+    let id = studentID.value.trim();
+    currentStudent = students.find(s=>s.regNo==id);
+    if(!currentStudent){
+        studentInfo.style.display="none";
+        payFeeBtn.style.display="none";
+        return;
+    }
+    document.getElementById("studentName").value = currentStudent.name;
+    document.getElementById("fatherName").value = currentStudent.fatherName || "";
+    document.getElementById("course").value = currentStudent.course || "";
+    let fee = parseFloat(currentStudent.total_fee);
+    if(isNaN(fee)) fee = 0;
+    document.getElementById("totalFee").value = fee + " PKR";
+    studentInfo.style.display="block";
+    payFeeBtn.style.display="inline-block";
+});
+
+// Pay Student Fee
+payFeeBtn.addEventListener("click", ()=>{
+    if(!currentStudent) return;
+    let fee = parseFloat(currentStudent.total_fee);
+    if(isNaN(fee)) fee = 0;
+    if(walletBalance < fee) return notify("❌ Not enough wallet balance!", true);
+
+    walletBalance -= fee;
+    localStorage.setItem("walletBalance", walletBalance);
+    document.getElementById("walletBalance").innerText = walletBalance + " PKR";
+
+    feeStatus[currentStudent.regNo] = {status:"Paid", timestamp:Date.now()};
+    localStorage.setItem("feeStatus", JSON.stringify(feeStatus));
+
+    monthlyIncome += fee;
+    localStorage.setItem("monthlyIncome", monthlyIncome);
+
+    notify(`✅ Fee paid for ${currentStudent.name} (${fee} PKR)`);
+
+    studentID.value="";
+    studentInfo.style.display="none";
+    payFeeBtn.style.display="none";
+});
+
+// Add Money
+document.getElementById("addMoneyBtn").addEventListener("click", ()=>{
+    let amount = prompt("Enter amount:");
+    amount = parseFloat(amount);
+    if(isNaN(amount) || amount<=0) return;
+    walletBalance += amount;
+    localStorage.setItem("walletBalance", walletBalance);
+    document.getElementById("walletBalance").innerText = walletBalance + " PKR";
+    notify(`💰 Added ${amount} PKR`);
+});
+
+// -------- TEACHER LOGIC --------
+const teacherIDInput = document.getElementById("teacherID");
+const teacherInfo = document.getElementById("teacherInfo");
+const payTeacherBtn = document.getElementById("payTeacherBtn");
+let currentTeacher = null;
+
+teacherIDInput.addEventListener("input", ()=>{
+    let id = teacherIDInput.value.trim();
+    currentTeacher = teachers.find(t=>t.regNo==id);
+    if(!currentTeacher){
+        teacherInfo.style.display="none";
+        payTeacherBtn.style.display="none";
+        return;
+    }
+    document.getElementById("teacherName").value = currentTeacher.name;
+    document.getElementById("teacherSubject").value = currentTeacher.subject || "";
+    let salary = parseFloat(currentTeacher.expectedSalary);
+    if(isNaN(salary)) salary = 0;
+    document.getElementById("teacherSalary").value = salary + " PKR";
+    teacherInfo.style.display="block";
+    payTeacherBtn.style.display="block";
+});
+
+// Pay Teacher
+payTeacherBtn.addEventListener("click", ()=>{
+    if(!currentTeacher) return;
+    let salary = parseFloat(currentTeacher.expectedSalary);
+    if(isNaN(salary)) salary = 0;
+    if(walletBalance < salary) return notify("❌ Cannot pay! Wallet balance too low!", true);
+
+    walletBalance -= salary;
+    localStorage.setItem("walletBalance", walletBalance);
+    document.getElementById("walletBalance").innerText = walletBalance + " PKR";
+
+    teacherFeeStatus[currentTeacher.regNo] = {status:"Paid", timestamp:Date.now()};
+    localStorage.setItem("teacherFee", JSON.stringify(teacherFeeStatus));
+
+    notify(`💚 Salary paid to ${currentTeacher.name}`);
+
+    teacherIDInput.value="";
+    teacherInfo.style.display="none";
+});
+
+// -------- MODE SWITCH --------
+const studentSection = document.getElementById("studentSection");
+const teacherSection = document.getElementById("teacherSection");
+const studentModeBtn = document.getElementById("studentModeBtn");
+const teacherModeBtn = document.getElementById("teacherModeBtn");
+
+studentModeBtn.onclick = ()=>{
+    studentSection.style.display="block";
+    teacherSection.style.display="none";
+    studentModeBtn.classList.add("active");
+    teacherModeBtn.classList.remove("active");
+};
+teacherModeBtn.onclick = ()=>{
+    studentSection.style.display="none";
+    teacherSection.style.display="block";
+    teacherModeBtn.classList.add("active");
+    studentModeBtn.classList.remove("active");
+};
+</script>
+</body>
+</html>

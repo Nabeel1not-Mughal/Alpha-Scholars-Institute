@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💳 Fee Status</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #e8f5e9;
+            margin: 0;
+            padding: 40px;
+            color: #0a192f;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 25px;
+            color: #2e7d32;
+            text-align: center;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            border: 2px solid #ccc;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        #searchInput:focus {
+            border-color: #2e7d32;
+            outline: none;
+            box-shadow: 0 0 8px rgba(46, 125, 50, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            padding: 14px 12px;
+            text-align: center;
+        }
+
+        th {
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            color: #fff;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tbody tr {
+            transition: 0.3s;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f4f9f4;
+        }
+
+        tbody tr:hover {
+            background: #e1f5e1;
+        }
+
+        .paid {
+            color: green;
+            font-weight: bold;
+        }
+
+        .unpaid {
+            color: crimson;
+            font-weight: bold;
+        }
+
+        .toaster {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 250px;
+            background: #2e7d32;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1000;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+            }
+
+            thead tr {
+                display: none;
+            }
+
+            tbody tr {
+                margin-bottom: 20px;
+                border: 1px solid #ccc;
+                border-radius: 12px;
+                padding: 12px;
+                background: #f9fff9;
+            }
+
+            td {
+                text-align: left;
+                padding: 8px 6px;
+                display: flex;
+                justify-content: space-between;
+            }
+
+            td::before {
+                content: attr(data-label);
+                font-weight: 600;
+            }
+
+            #searchInput {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>💳 Fee Status</h1>
+        <input type="text" id="searchInput" placeholder="Search by Student Name or ID">
+
+        <table id="studentsTable">
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Course</th>
+                    <th>Total Fee</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows populated by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="toaster" class="toaster"></div>
+
+    <script>
+        const toaster = document.getElementById('toaster');
+        function showToaster(msg) {
+            toaster.innerText = msg;
+            toaster.style.display = 'block';
+            setTimeout(() => { toaster.style.display = 'none'; }, 3000);
+        }
+
+        // Load students and fee status
+        let students = JSON.parse(localStorage.getItem('students') || '[]');
+        let feeStatus = JSON.parse(localStorage.getItem('feeStatus') || '{}');
+
+        function renderTable(filter = '') {
+            const tbody = document.querySelector('#studentsTable tbody');
+            tbody.innerHTML = '';
+
+            let now = Date.now();
+
+            // Check for auto-reset
+            Object.keys(feeStatus).forEach(regNo => {
+                let record = feeStatus[regNo];
+                if (record.status === 'Paid' && now - record.timestamp >= 120000) { // 2 minutes
+                    feeStatus[regNo].status = 'Unpaid';
+                    delete feeStatus[regNo].timestamp; // Remove old timestamp
+                    localStorage.setItem('feeStatus', JSON.stringify(feeStatus));
+                }
+            });
+
+            let filtered = students.filter(s =>
+                s.name.toLowerCase().includes(filter.toLowerCase()) ||
+                s.regNo.toString().includes(filter)
+            );
+
+            filtered.forEach(student => {
+                let status = feeStatus[student.regNo]?.status || 'Unpaid';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+            <td data-label="Student ID">${student.regNo}</td>
+            <td data-label="Name">${student.name}</td>
+            <td data-label="Course">${student.course}</td>
+            <td data-label="Total Fee">${student.total_fee}</td>
+            <td data-label="Status" class="${status.toLowerCase()}">${status}</td>
+        `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Initial render
+        renderTable();
+
+        // Search filter
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            renderTable(e.target.value);
+        });
+
+        // Auto refresh every 5 seconds to update status
+        setInterval(() => renderTable(document.getElementById('searchInput').value), 5000);
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Alpha Scholars Institute</title>
+    <link rel="icon" href="images/alphaSchool.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #e8f5e9, #bbdefb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .login-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 30px 25px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-card img {
+            width: 70px;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            margin: 10px 0 20px;
+            color: #2e7d32;
+        }
+
+        .input-group {
+            margin-right: 7%;
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .input-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            outline: none;
+            transition: 0.3s;
+            font-size: 15px;
+        }
+
+        .input-group input:focus {
+            border-color: #2e7d32;
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, #2e7d32, #43a047);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 5px;
+        }
+
+        .btn:hover {
+            background: linear-gradient(90deg, #1b5e20, #2e7d32);
+        }
+
+        .error {
+            color: #d32f2f;
+            background: #ffebee;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .success {
+            color: #2e7d32;
+            background: #e8f5e9;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .toggle-link {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #2e7d32;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        #loaderOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        /* Rare 3D-ish spinning loader */
+        .spinner {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .spinner div {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #2e7d32, #43a047);
+            border-radius: 50%;
+            animation: spinnerAnim 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        }
+
+        .spinner div:nth-child(1) {
+            top: 0;
+            left: 32px;
+            animation-delay: 0s;
+        }
+
+        .spinner div:nth-child(2) {
+            top: 32px;
+            left: 64px;
+            animation-delay: 0.3s;
+        }
+
+        .spinner div:nth-child(3) {
+            top: 64px;
+            left: 32px;
+            animation-delay: 0.6s;
+        }
+
+        .spinner div:nth-child(4) {
+            top: 32px;
+            left: 0;
+            animation-delay: 0.9s;
+        }
+
+        @keyframes spinnerAnim {
+
+            0%,
+            100% {
+                transform: scale(0.1) rotate(0deg);
+                opacity: 0.3;
+            }
+
+            50% {
+                transform: scale(1) rotate(180deg);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loader Overlay -->
+    <div id="loaderOverlay" style="display:none;">
+        <div class="spinner">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <div class="login-card">
+        <img src="images/alphaSchool.jpg" alt="NES Logo">
+        <h2 id="formTitle">Admin Login</h2>
+
+        <div id="message"></div>
+
+        <!-- Login Form -->
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="loginEmail"><i class="fa fa-envelope"></i> Email</label>
+                <input type="email" id="loginEmail" required>
+            </div>
+
+            <div class="input-group">
+                <label for="loginPassword"><i class="fa fa-lock"></i> Password</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+
+            <button type="submit" class="btn">Login</button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="registerForm" style="display:none;">
+            <div class="input-group">
+                <label for="registerName"><i class="fa fa-user"></i> Name</label>
+                <input type="text" id="registerName" required>
+            </div>
+
+            <div class="input-group">
+                <label for="registerEmail"><i class="fa fa-envelope"></i> Email</label>
+                <input type="email" id="registerEmail" required>
+            </div>
+
+            <div class="input-group">
+                <label for="registerPassword"><i class="fa fa-lock"></i> Password</label>
+                <input type="password" id="registerPassword" required>
+            </div>
+
+            <button type="submit" class="btn">Create Account</button>
+        </form>
+
+        <div class="toggle-link" onclick="toggleForms()">Don’t have an account? Create Account</div>
+
+        <div class="footer">
+            © Alpha Scholars — Developed By Nabeel
+        </div>
+    </div>
+
+    <script>
+        // Toggle between login and register forms
+        function toggleForms() {
+            const loginForm = document.getElementById("loginForm");
+            const registerForm = document.getElementById("registerForm");
+            const title = document.getElementById("formTitle");
+            const toggle = document.querySelector(".toggle-link");
+            const message = document.getElementById("message");
+            message.innerHTML = '';
+
+            if (loginForm.style.display === "none") {
+                loginForm.style.display = "block";
+                registerForm.style.display = "none";
+                title.innerText = "Admin Login";
+                toggle.innerText = "Don’t have an account? Create Account";
+            } else {
+                loginForm.style.display = "none";
+                registerForm.style.display = "block";
+                title.innerText = "Create Account";
+                toggle.innerText = "Already have an account? Login";
+            }
+        }
+
+        // Utility: get users from localStorage
+        function getUsers() {
+            const users = localStorage.getItem("admins");
+            return users ? JSON.parse(users) : [];
+        }
+
+        // Utility: save users to localStorage
+        function saveUsers(users) {
+            localStorage.setItem("admins", JSON.stringify(users));
+        }
+
+        // Handle Registration
+        document.getElementById("registerForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const name = document.getElementById("registerName").value.trim();
+            const email = document.getElementById("registerEmail").value.trim();
+            const password = document.getElementById("registerPassword").value;
+
+            const message = document.getElementById("message");
+            const users = getUsers();
+
+            // Check if email exists
+            if (users.some(u => u.email === email)) {
+                message.innerHTML = '<div class="error">⚠️ Email already registered!</div>';
+                return;
+            }
+
+            // Save new user
+            users.push({ name, email, password });
+            saveUsers(users);
+            message.innerHTML = '<div class="success">✅ Account created! You can now login.</div>';
+
+            // Clear fields
+            document.getElementById("registerName").value = '';
+            document.getElementById("registerEmail").value = '';
+            document.getElementById("registerPassword").value = '';
+
+            // Switch to login
+            toggleForms();
+        });
+
+        // Handle Login
+        document.getElementById("loginForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const email = document.getElementById("loginEmail").value.trim();
+            const password = document.getElementById("loginPassword").value;
+            const message = document.getElementById("message");
+            const users = getUsers();
+
+            const user = users.find(u => u.email === email && u.password === password);
+            if (user) {
+                message.innerHTML = `<div class="success">✅ Welcome, ${user.name}!</div>`;
+
+                // Show loader overlay
+                const loader = document.getElementById("loaderOverlay");
+                loader.style.display = "flex";
+
+                setTimeout(() => {
+                    loader.style.display = "none";
+                    window.location.href = "index.html"; // Dashboard
+                }, 3000); // 3 seconds loader
+            } else {
+                message.innerHTML = '<div class="error">❌ Invalid email or password.</div>';
+            }
+
+        });
+    </script>
+</body>
+
+</html>

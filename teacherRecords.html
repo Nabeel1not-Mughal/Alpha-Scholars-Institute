@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teachers Record</title>
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #f5f8fa;
+            padding: 40px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            background: #ffffff;
+            padding: 30px 40px;
+            border-radius: 18px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 36px;
+            color: #006400;
+            margin-bottom: 25px;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        th {
+            background: #006400;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f7f7f7;
+        }
+
+        .paid {
+            background: #d0ffd0;
+            color: #006400;
+            font-weight: bold;
+        }
+
+        .unpaid {
+            background: #ffd6d6;
+            color: crimson;
+            font-weight: bold;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .editBtn {
+            background: #007bff;
+            color: white;
+        }
+
+        .deleteBtn {
+            background: crimson;
+            color: white;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .page-btn {
+            padding: 8px 14px;
+            border: 1px solid #006400;
+            color: #006400;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .page-btn.active {
+            background: #006400;
+            color: white;
+        }
+
+        /* Toaster */
+        #toaster {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #006400;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 10px;
+            display: none;
+            font-size: 15px;
+            z-index: 999;
+        }
+
+        #toaster.error {
+            background: crimson;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📘 Teachers Record</h1>
+
+        <input type="text" id="searchInput" placeholder="Search by Name, Subject or ID" />
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Subject</th>
+                    <th>Phone</th>
+                    <th>Experience</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="teachersTable"></tbody>
+        </table>
+
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <div id="toaster"></div>
+
+    <script>
+        let teachers = JSON.parse(localStorage.getItem("teachers") || "[]");
+        let feeStatus = JSON.parse(localStorage.getItem("teacherFee") || "{}");
+
+        const rowsPerPage = 6;
+        let currentPage = 1;
+        let editMode = null;
+
+        const tableBody = document.getElementById("teachersTable");
+        const pagination = document.getElementById("pagination");
+        const searchInput = document.getElementById("searchInput");
+        const toaster = document.getElementById("toaster");
+
+        function showToaster(message, error = false) {
+            toaster.innerText = message;
+            toaster.className = error ? "error" : "";
+            toaster.style.display = "block";
+            setTimeout(() => (toaster.style.display = "none"), 3000);
+        }
+
+        function renderTable() {
+            let filter = searchInput.value.toLowerCase();
+
+            let filtered = teachers.filter(t =>
+                t.name.toLowerCase().includes(filter) ||
+                t.subject.toLowerCase().includes(filter) ||
+                t.regNo.toLowerCase().includes(filter)
+            );
+
+            let start = (currentPage - 1) * rowsPerPage;
+            let end = start + rowsPerPage;
+            let paginated = filtered.slice(start, end);
+
+            tableBody.innerHTML = "";
+
+            paginated.forEach(t => {
+                let status = feeStatus[t.regNo]?.status || "Unpaid";
+                let statusClass = status === "Paid" ? "paid" : "unpaid";
+
+                if (editMode === t.regNo) {
+                    // Inline editable row
+                    tableBody.innerHTML += `
+                    <tr class="${statusClass}">
+                        <td>${t.regNo}</td>
+                        <td><input id="editName" value="${t.name}"/></td>
+                        <td><input id="editSubject" value="${t.subject}"/></td>
+                        <td><input id="editPhone" value="${t.phone}"/></td>
+                        <td><input id="editExp" value="${t.experience}"/></td>
+                        <td>${status}</td>
+                        <td>
+                            <button class="btn editBtn" onclick="saveTeacher('${t.regNo}')">Save</button>
+                            <button class="btn deleteBtn" onclick="cancelEdit()">Cancel</button>
+                        </td>
+                    </tr>`;
+                } else {
+                    // Normal row
+                    tableBody.innerHTML += `
+                    <tr class="${statusClass}">
+                        <td>${t.regNo}</td>
+                        <td>${t.name}</td>
+                        <td>${t.subject}</td>
+                        <td>${t.phone}</td>
+                        <td>${t.experience} yrs</td>
+                        <td>${status}</td>
+                        <td>
+                            <button class="btn editBtn" onclick="editTeacher('${t.regNo}')">Edit</button>
+                            <button class="btn deleteBtn" onclick="deleteTeacher('${t.regNo}')">Delete</button>
+                        </td>
+                    </tr>`;
+                }
+            });
+
+            renderPagination(filtered.length);
+        }
+
+        function renderPagination(totalRows) {
+            let pages = Math.ceil(totalRows / rowsPerPage);
+            pagination.innerHTML = "";
+
+            for (let i = 1; i <= pages; i++) {
+                let btn = document.createElement("button");
+                btn.className = `page-btn ${i === currentPage ? "active" : ""}`;
+                btn.innerText = i;
+                btn.onclick = () => {
+                    currentPage = i;
+                    renderTable();
+                };
+                pagination.appendChild(btn);
+            }
+        }
+
+        function deleteTeacher(id) {
+            teachers = teachers.filter(t => t.regNo !== id);
+            localStorage.setItem("teachers", JSON.stringify(teachers));
+            showToaster("Teacher deleted successfully");
+            renderTable();
+        }
+
+        function editTeacher(id) {
+            editMode = id;
+            renderTable();
+        }
+
+        function cancelEdit() {
+            editMode = null;
+            renderTable();
+        }
+
+        function saveTeacher(id) {
+            let index = teachers.findIndex(t => t.regNo === id);
+            if (index === -1) return;
+
+            teachers[index].name = document.getElementById("editName").value;
+            teachers[index].subject = document.getElementById("editSubject").value;
+            teachers[index].phone = document.getElementById("editPhone").value;
+            teachers[index].experience = document.getElementById("editExp").value;
+
+            localStorage.setItem("teachers", JSON.stringify(teachers));
+            showToaster("Teacher updated successfully");
+
+            editMode = null;
+            renderTable();
+        }
+
+        searchInput.addEventListener("input", () => {
+            currentPage = 1;
+            renderTable();
+        });
+
+        renderTable();
+
+        // ===== Teacher Auto Reset Logic =====
+        const SALARY_RESET_MS = 2 * 60 * 1000; // 2 minutes
+
+        function autoResetSalary() {
+            let teacherFeeStatus = JSON.parse(localStorage.getItem("teacherFee") || "{}");
+            let now = Date.now();
+
+            Object.keys(teacherFeeStatus).forEach(regNo => {
+                let record = teacherFeeStatus[regNo];
+                if (record.status === "Paid" && now - record.timestamp >= SALARY_RESET_MS) {
+                    teacherFeeStatus[regNo].status = "Unpaid";
+                    delete teacherFeeStatus[regNo].timestamp;
+                    localStorage.setItem("teacherFee", JSON.stringify(teacherFeeStatus));
+                }
+            });
+
+            // Rerender table so updated status shows
+            renderTable();
+        }
+
+        // Check every 5 seconds
+        setInterval(autoResetSalary, 5000);
+
+    </script>
+</body>
+
+</html>

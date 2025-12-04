@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Scholars Institute — Dashboard</title>
+    <link rel="icon" href="images/alphaSchool.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0fdf4 0%, #e8f5e9 50%, #ffffff 100%);
+            color: #0a2540;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background 0.5s ease-in-out;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 14px 28px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 4px solid #2e7d32;
+            backdrop-filter: blur(10px);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 800;
+            color: #0a2540;
+            letter-spacing: 0.5px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0;
+            overflow-x: hidden;
+            background: linear-gradient(180deg, #0a2540 0%, #1b5e20 100%);
+            padding-bottom: 20px;
+            z-index: 2000;
+            transition: width 0.4s ease;
+            /* No border-radius */
+        }
+
+        .sidebar.open {
+            width: 260px;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-header .logo {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border: 2px solid #4caf50;
+            border-radius: 50%;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        .sidebar-menu a {
+            padding: 14px 25px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #eaf2f8;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px 10px;
+        }
+
+        .sidebar-menu a:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            transform: translateX(6px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-menu a.active {
+            background: #4caf50;
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Close Button Top-Right */
+        .sidebar .closebtn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 28px;
+            color: #f44336;
+            cursor: pointer;
+            z-index: 10;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar .closebtn:hover {
+            transform: scale(1.2);
+        }
+
+        /* Hamburger Button */
+        .openbtn {
+            background: linear-gradient(90deg, #2e7d32, #43a047);
+            color: #fff;
+            padding: 10px 18px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .openbtn:hover {
+            background: linear-gradient(90deg, #1b5e20, #2e7d32);
+            transform: scale(1.05);
+        }
+
+        .container {
+            flex: 1;
+            padding: 40px 25px;
+            transition: margin-left 0.4s ease;
+        }
+
+        #dashboardContent {
+            margin: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            width: 100%;
+        }
+
+        .card {
+            background: linear-gradient(145deg, #ffffff 0%, #e0f7e9 100%);
+            border-radius: 18px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-6px) scale(1.02);
+        }
+
+        .stat {
+            font-size: 36px;
+            font-weight: 800;
+            color: #2e7d32;
+            margin-bottom: 8px;
+        }
+
+        .label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0a2540;
+        }
+
+        .subline {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 6px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 16px;
+            font-size: 13px;
+            color: #6b7280;
+            background: rgba(255, 255, 255, 0.95);
+            border-top: 3px solid #2e7d32;
+            backdrop-filter: blur(8px);
+        }
+
+        @media(max-width:768px) {
+            .grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            }
+
+            header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mySidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()"><i class="fa-solid fa-circle-xmark"></i></a>
+        <div class="sidebar-header">
+            <img src="images/alphaSchool.jpg" alt="Logo" class="logo">
+            <h2>Alpha Scholars</h2>
+        </div>
+        <nav class="sidebar-menu">
+            <a href="index.html" class="active"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="#" onclick="loadInFrame('addStudent')"><i class="fa fa-user-plus"></i> Add Student</a>
+            <a href="#" onclick="loadInFrame('addTeachers')"><i class="fa fa-user-plus"></i> Add Teachers</a>
+            <a href="#" onclick="loadInFrame('attendance')"><i class="fa fa-calendar-check"></i> Attendance</a>
+            <a href="#" onclick="loadInFrame('records')"><i class="fa fa-database"></i>Students Records</a>
+            <a href="#" onclick="loadInFrame('teacherRecords')"><i class="fa fa-database"></i>Teachers Records</a>
+            <a href="#" onclick="loadInFrame('feeStatus')"><i class="fas fa-wallet"></i> Fee Status</a>
+            <a href="#" onclick="loadInFrame('notices')"><i class="fa fa-bell"></i> Notices</a>
+            <a href="#" onclick="loadInFrame('charts')"><i class="fa fa-chart-line"></i> Charts</a>
+            <a href="#" onclick="loadInFrame('feeWallet')"><i class="fa-brands fa-google-wallet"></i> Wallet/Payments</a>
+        </nav>
+    </div>
+
+
+    <header>
+        <button class="openbtn" onclick="openNav()">☰ Menu</button>
+        <h1>Alpha Scholars Institute — Admin Dashboard</h1>
+        <div>
+            Welcome, <strong style="color: green;" id="adminName">Admin</strong> |
+            <a href="login.html" onclick="logout()"
+                style="font-weight: bolder; text-decoration: none; color: red;">Logout</a>
+        </div>
+    </header>
+
+    <div id="main" class="container">
+        <div id="dashboardContent">
+            <h1 style="text-align:center; color:#2e7d32; margin-bottom:30px;">🎓 Welcome to Alpha Scholars Institute
+            </h1>
+
+            <div class="grid">
+                <div class="card">
+                    <div class="stat" id="totalStudents">0</div>
+                    <div class="label">Total Students</div>
+                    <div class="subline">Active learners enrolled</div>
+                </div>
+
+                <div class="card">
+                    <div class="stat" id="totalTeachers">0</div>
+                    <div class="label">Total Teachers</div>
+                    <div class="subline">Registered instructors</div>
+                </div>
+
+                <div class="card">
+                    <div class="stat" id="schoolBalance">0 PKR</div>
+                    <div class="label">School Balance</div>
+                    <div class="subline">Collected fees</div>
+                </div>
+
+                <div class="card">
+                    <div class="stat" id="monthlyIncome">0 PKR</div>
+                    <div class="label">Monthly Income</div>
+                    <div class="subline">Current month fees</div>
+                </div>
+            </div>
+        </div>
+
+        <iframe id="iframeBox" src="#" name="contentFrame"
+            style="display:none;width:100%;height:80vh;border:none;margin-top:25px;border-radius:14px;box-shadow:0 8px 25px rgba(0,0,0,0.1);"></iframe>
+    </div>
+
+    <footer>
+        © Alpha Scholars Institute — Administrative Dashboard | <span id="year"></span> Developed By Nabeel Mughal
+    </footer>
+
+    <script>
+        function openNav() { document.getElementById("mySidebar").style.width = "250px"; document.getElementById("main").style.marginLeft = "250px"; }
+        function closeNav() { document.getElementById("mySidebar").style.width = "0"; document.getElementById("main").style.marginLeft = "0"; }
+        function loadInFrame(page) { document.getElementById("dashboardContent").style.display = "none"; let iframe = document.getElementById("iframeBox"); iframe.style.display = "block"; iframe.src = page + ".html"; }
+
+        if (!localStorage.getItem('adminName')) localStorage.setItem('adminName', 'Admin');
+        document.getElementById('adminName').textContent = localStorage.getItem('adminName');
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Load dashboard stats
+        function loadStats() {
+            const students = JSON.parse(localStorage.getItem('students') || '[]');
+            const teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
+            const feeStatus = JSON.parse(localStorage.getItem('feeStatus') || '{}');
+
+            document.getElementById('totalStudents').textContent = students.length;
+            document.getElementById('totalTeachers').textContent = teachers.length;
+
+            let schoolBalance = 0, monthlyIncome = 0;
+
+            students.forEach(s => {
+                if (feeStatus[s.regNo] && feeStatus[s.regNo].status === "Paid") {
+                    let fee = Number(s.total_fee || 0);
+                    schoolBalance += fee;
+
+                    // Monthly income calculation (for current month)
+                    // Assuming payment is for current month
+                    monthlyIncome += fee;
+                }
+            });
+
+            document.getElementById('schoolBalance').textContent = schoolBalance + ' PKR';
+            document.getElementById('monthlyIncome').textContent = monthlyIncome + ' PKR';
+        }
+
+        // Call on page load
+        loadStats();
+
+
+        function logout() { alert('Logged out!'); }
+    </script>
+</body>
+
+</html>
