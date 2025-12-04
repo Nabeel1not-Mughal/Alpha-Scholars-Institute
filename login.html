@@ -320,6 +320,8 @@
 
             const user = users.find(u => u.email === email && u.password === password);
             if (user) {
+                localStorage.setItem("isLoggedIn", "true");
+
                 message.innerHTML = `<div class="success">✅ Welcome, ${user.name}!</div>`;
 
                 // Show loader overlay
@@ -337,5 +339,6 @@
         });
     </script>
 </body>
+
 
 </html>
