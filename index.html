@@ -330,10 +330,19 @@
 
         // Call on page load
         loadStats();
+// 🔒 Page Protection
+if (localStorage.getItem("isLoggedIn") !== "true") {
+    window.location.href = "login.html";
+}
 
 
-        function logout() { alert('Logged out!'); }
+        function logout() {
+    localStorage.removeItem("isLoggedIn"); // remove session
+    window.location.href = "login.html"; // redirect
+}
+
     </script>
 </body>
+
 
 </html>
